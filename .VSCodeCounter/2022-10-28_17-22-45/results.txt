@@ -1,0 +1,93 @@
+Date : 2022-10-28 17:22:45
+Directory : c:\Users\User\Downloads\Documents\Flutter\web_dashboard\lib
+Total : 49 files,  7874 codes, 6723 comments, 954 blanks, all 15551 lines
+
+Languages
++----------+------------+------------+------------+------------+------------+
+| language | files      | code       | comment    | blank      | total      |
++----------+------------+------------+------------+------------+------------+
+| Dart     |         49 |      7,874 |      6,723 |        954 |     15,551 |
++----------+------------+------------+------------+------------+------------+
+
+Directories
++------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                                             | files      | code       | comment    | blank      | total      |
++------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                                                |         49 |      7,874 |      6,723 |        954 |     15,551 |
+| instance                                                                                                         |          8 |        311 |        411 |        136 |        858 |
+| instance\forceRefresh                                                                                            |          1 |         59 |         11 |          7 |         77 |
+| instance\mqtt                                                                                                    |          5 |        232 |         66 |         66 |        364 |
+| model                                                                                                            |         18 |      1,994 |      4,023 |        385 |      6,402 |
+| model\alert                                                                                                      |          2 |        143 |          0 |         23 |        166 |
+| model\cleaner                                                                                                    |          7 |        813 |          0 |        114 |        927 |
+| model\cleaner\employee                                                                                           |          5 |        678 |          0 |         90 |        768 |
+| model\location                                                                                                   |          5 |        596 |          0 |         95 |        691 |
+| model\login                                                                                                      |          1 |        175 |          0 |         35 |        210 |
+| model\staticData                                                                                                 |          2 |        242 |      4,023 |        114 |      4,379 |
+| notifier                                                                                                         |          1 |        164 |          3 |         23 |        190 |
+| screens                                                                                                          |         12 |      4,824 |      2,098 |        317 |      7,239 |
+| screens\alert                                                                                                    |          1 |        624 |        107 |         35 |        766 |
+| screens\cleaner                                                                                                  |          2 |      1,329 |        128 |         70 |      1,527 |
+| screens\location                                                                                                 |          4 |      2,243 |        811 |        129 |      3,183 |
+| screens\login                                                                                                    |          1 |        230 |         26 |         14 |        270 |
+| screens\settings                                                                                                 |          2 |        398 |         57 |         31 |        486 |
+| service                                                                                                          |          5 |        203 |         25 |         38 |        266 |
+| sharedPreference                                                                                                 |          1 |         94 |        126 |         18 |        238 |
+| util                                                                                                             |          1 |         43 |          0 |         10 |         53 |
++------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++------------------------------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| filename                                                                                                         | language | code       | comment    | blank      | total      |
++------------------------------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| c:\Users\User\Downloads\Documents\Flutter\web_dashboard\lib\config.dart                                          | Dart     |          9 |          2 |          2 |         13 |
+| c:\Users\User\Downloads\Documents\Flutter\web_dashboard\lib\homeScreen.dart                                      | Dart     |        189 |         32 |         18 |        239 |
+| c:\Users\User\Downloads\Documents\Flutter\web_dashboard\lib\instance\MQTTAppState.dart                           | Dart     |         20 |          1 |          7 |         28 |
+| c:\Users\User\Downloads\Documents\Flutter\web_dashboard\lib\instance\forceRefresh\refreshTokenDueLongPeriod.dart | Dart     |         59 |         11 |          7 |         77 |
+| c:\Users\User\Downloads\Documents\Flutter\web_dashboard\lib\instance\mqttManagerUniversal.dart                   | Dart     |          0 |        333 |         56 |        389 |
+| c:\Users\User\Downloads\Documents\Flutter\web_dashboard\lib\instance\mqtt\mqttClientFactory.dart                 | Dart     |          3 |          0 |          1 |          4 |
+| c:\Users\User\Downloads\Documents\Flutter\web_dashboard\lib\instance\mqtt\mqttClientFactoryNull.dart             | Dart     |          4 |          0 |          2 |          6 |
+| c:\Users\User\Downloads\Documents\Flutter\web_dashboard\lib\instance\mqtt\mqttClientFactoryServer.dart           | Dart     |         17 |          6 |          6 |         29 |
+| c:\Users\User\Downloads\Documents\Flutter\web_dashboard\lib\instance\mqtt\mqttClientFactoryWeb.dart              | Dart     |         16 |          3 |          6 |         25 |
+| c:\Users\User\Downloads\Documents\Flutter\web_dashboard\lib\instance\mqtt\mqttManager.dart                       | Dart     |        192 |         57 |         51 |        300 |
+| c:\Users\User\Downloads\Documents\Flutter\web_dashboard\lib\main.dart                                            | Dart     |         43 |          3 |          7 |         53 |
+| c:\Users\User\Downloads\Documents\Flutter\web_dashboard\lib\model\alert\alert.dart                               | Dart     |        121 |          0 |         19 |        140 |
+| c:\Users\User\Downloads\Documents\Flutter\web_dashboard\lib\model\alert\alertNotification.dart                   | Dart     |         22 |          0 |          4 |         26 |
+| c:\Users\User\Downloads\Documents\Flutter\web_dashboard\lib\model\cleaner\cleaners.dart                          | Dart     |         45 |          0 |          9 |         54 |
+| c:\Users\User\Downloads\Documents\Flutter\web_dashboard\lib\model\cleaner\cleanersChart.dart                     | Dart     |         90 |          0 |         15 |        105 |
+| c:\Users\User\Downloads\Documents\Flutter\web_dashboard\lib\model\cleaner\employee\employee.dart                 | Dart     |        194 |          0 |         25 |        219 |
+| c:\Users\User\Downloads\Documents\Flutter\web_dashboard\lib\model\cleaner\employee\employeeLatestLog.dart        | Dart     |        118 |          0 |         16 |        134 |
+| c:\Users\User\Downloads\Documents\Flutter\web_dashboard\lib\model\cleaner\employee\employeeSummary.dart          | Dart     |        130 |          0 |         16 |        146 |
+| c:\Users\User\Downloads\Documents\Flutter\web_dashboard\lib\model\cleaner\employee\employeeTimeSpent.dart        | Dart     |         43 |          0 |          8 |         51 |
+| c:\Users\User\Downloads\Documents\Flutter\web_dashboard\lib\model\cleaner\employee\employeeTrailLogs.dart        | Dart     |        193 |          0 |         25 |        218 |
+| c:\Users\User\Downloads\Documents\Flutter\web_dashboard\lib\model\location\OverallLocation.dart                  | Dart     |         53 |          0 |         10 |         63 |
+| c:\Users\User\Downloads\Documents\Flutter\web_dashboard\lib\model\location\roomLatestLog.dart                    | Dart     |        134 |          0 |         20 |        154 |
+| c:\Users\User\Downloads\Documents\Flutter\web_dashboard\lib\model\location\roomTimeSpent.dart                    | Dart     |         88 |          0 |         15 |        103 |
+| c:\Users\User\Downloads\Documents\Flutter\web_dashboard\lib\model\location\roomTrailLogs.dart                    | Dart     |        173 |          0 |         20 |        193 |
+| c:\Users\User\Downloads\Documents\Flutter\web_dashboard\lib\model\location\trailLogs.dart                        | Dart     |        148 |          0 |         30 |        178 |
+| c:\Users\User\Downloads\Documents\Flutter\web_dashboard\lib\model\login\login.dart                               | Dart     |        175 |          0 |         35 |        210 |
+| c:\Users\User\Downloads\Documents\Flutter\web_dashboard\lib\model\staticData\download copy.dart                  | Dart     |        242 |          5 |         33 |        280 |
+| c:\Users\User\Downloads\Documents\Flutter\web_dashboard\lib\model\staticData\download.dart                       | Dart     |          0 |      4,018 |         81 |      4,099 |
+| c:\Users\User\Downloads\Documents\Flutter\web_dashboard\lib\model\universalMessage.dart                          | Dart     |         25 |          0 |          4 |         29 |
+| c:\Users\User\Downloads\Documents\Flutter\web_dashboard\lib\notifier\notifierManager.dart                        | Dart     |        164 |          3 |         23 |        190 |
+| c:\Users\User\Downloads\Documents\Flutter\web_dashboard\lib\screens\alert\alertScreen.dart                       | Dart     |        624 |        107 |         35 |        766 |
+| c:\Users\User\Downloads\Documents\Flutter\web_dashboard\lib\screens\cleaner\cleanerDetails.dart                  | Dart     |        448 |         46 |         22 |        516 |
+| c:\Users\User\Downloads\Documents\Flutter\web_dashboard\lib\screens\cleaner\cleanerScreen.dart                   | Dart     |        881 |         82 |         48 |      1,011 |
+| c:\Users\User\Downloads\Documents\Flutter\web_dashboard\lib\screens\locationDetailsScreen.dart                   | Dart     |          0 |        937 |         32 |        969 |
+| c:\Users\User\Downloads\Documents\Flutter\web_dashboard\lib\screens\location\locationDetailsScreen.dart          | Dart     |        856 |         81 |         31 |        968 |
+| c:\Users\User\Downloads\Documents\Flutter\web_dashboard\lib\screens\location\locationDetailsScreen2.dart         | Dart     |        496 |         42 |         21 |        559 |
+| c:\Users\User\Downloads\Documents\Flutter\web_dashboard\lib\screens\location\locationScreen copy.dart            | Dart     |        891 |        155 |         57 |      1,103 |
+| c:\Users\User\Downloads\Documents\Flutter\web_dashboard\lib\screens\location\locationScreen.dart                 | Dart     |          0 |        533 |         20 |        553 |
+| c:\Users\User\Downloads\Documents\Flutter\web_dashboard\lib\screens\login\loginScreen.dart                       | Dart     |        230 |         26 |         14 |        270 |
+| c:\Users\User\Downloads\Documents\Flutter\web_dashboard\lib\screens\settings\changePassword.dart                 | Dart     |        256 |         28 |         21 |        305 |
+| c:\Users\User\Downloads\Documents\Flutter\web_dashboard\lib\screens\settings\settingsScreen.dart                 | Dart     |        142 |         29 |         10 |        181 |
+| c:\Users\User\Downloads\Documents\Flutter\web_dashboard\lib\screens\splash_screen.dart                           | Dart     |          0 |         32 |          6 |         38 |
+| c:\Users\User\Downloads\Documents\Flutter\web_dashboard\lib\service\alertLog-api.dart                            | Dart     |         26 |          0 |          5 |         31 |
+| c:\Users\User\Downloads\Documents\Flutter\web_dashboard\lib\service\api.dart                                     | Dart     |         78 |          2 |         11 |         91 |
+| c:\Users\User\Downloads\Documents\Flutter\web_dashboard\lib\service\location-api.dart                            | Dart     |         68 |          3 |         14 |         85 |
+| c:\Users\User\Downloads\Documents\Flutter\web_dashboard\lib\service\login-api.dart                               | Dart     |         23 |         20 |          6 |         49 |
+| c:\Users\User\Downloads\Documents\Flutter\web_dashboard\lib\service\setting-api.dart                             | Dart     |          8 |          0 |          2 |         10 |
+| c:\Users\User\Downloads\Documents\Flutter\web_dashboard\lib\sharedPreference\sharedPreferences.dart              | Dart     |         94 |        126 |         18 |        238 |
+| c:\Users\User\Downloads\Documents\Flutter\web_dashboard\lib\util\util.dart                                       | Dart     |         43 |          0 |         10 |         53 |
+| Total                                                                                                            |          |      7,874 |      6,723 |        954 |     15,551 |
++------------------------------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+

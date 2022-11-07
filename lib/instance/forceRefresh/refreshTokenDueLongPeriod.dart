@@ -70,7 +70,7 @@ class RefreshTokenDueLongPeriod {
     if (loginData!.message == 'Successful') {
       print('success?');
       // Assign all the token in the map
-      mapToken['idToken'] = loginData!.data!.tokens!.idToken!;
+      mapToken['idToken'] = loginData.data!.tokens!.idToken!;
       mapToken['accessToken'] = loginData.data!.tokens!.accessToken!;
       mapToken['refreshToken'] = refreshTokenPrefs;
       mapToken['hasRefresh'] = 'true';

@@ -63,6 +63,12 @@ class MqttManager {
     String sessionToken = credentials.sessionToken as String;
     identityId = credentials.userIdentityId as String;
 
+    // String accessKey = 'ASIAQ5P2JEEJHDYGVZF3';
+    // String secretKey = '88odTXDXnwB9/GvQgJMf1BZ84GDtvR4JM4zq3ppE';
+    // String sessionToken =
+    //     'IQoJb3JpZ2luX2VjECkaDmFwLXNvdXRoZWFzdC0xIkgwRgIhAJHrXhK2yqJSLrN34AtBAEEZAOiSGb+POxuMEgXDeSGPAiEAgO4Go6n3rtgtax0Uyl7CdM6SKwYvJTOULgTHOi21M3Uq4gQIIhACGgwwNjMzMzg3ODI5OTQiDLSP5TkDWo8DxJmdFyq/BOvle0N1DXRHn14e+tiLTiEFxzbI7sx0prdeqopLPhfOgcP0YfAK9zv7htdyVT8viPonJBBeueuK1gv2PYAubxomdTEIbCHcWt+I8eAoB5VF+WWlgMjaRci9upVyThoBgLSxoX6Jk5fnJdoXc6F3TELLEzdd5Ie7ZaOXIk4bBDG+IR7IO6Elqv+Xe7+pwCYf0888IbzkWesyMV3X0vClGaXotjUCAfLH2c1vCLO5Qw/WBhcQhZkbw6uqknQjQnH8YxRmoGYa74+9G0DTUrzNQ10mpQ9Ii4mtluLuZ8C7z/EyVqH0s0q6JiykFt24hadtZDmBYt6A6H14bEKv0eObOmr6DXdkAubmBSpbR42I8IIgsaZ6b2eWUqnUE4UyTQ2aZmsh1Pl3Ifhy9iv3IYMby4SlZGPNtT0a2suH2VKa1UDcFavtg6ChtdcC/aq5GSduES4zAAnor12Btv+YaHHNKz/EEuFzgnzyXwBvzvqculoWfHOvqS/OGSSP4clt0e9MVkN/+16xNicrd+TMWRAF5JfInTD8lbIunwmcaCrmHADXLKrGodHW/NUDqgVCise6sA/J2xgQtQKwTdq6Ueg6Hf/4BoK/rti3NSm3wgW2Gh34N9w+Zy5XhROJnSTRJErLBtz1hAMg50rTwtYojC1tY5puJfx/3ofw0NJ4GRXZdyZ2P0TKbnhejm3l4woztOG38GmLpq0thMbUFTzM4PURPtuuzo8nlpFNRsJspSPDu1KbZyKB/1fAAYbWPRNvJuG4MMG3oZsGOoQCYRJCw/2E/ZDTwv/IsTGdrgNLxZ9v2uDlEH/clmWS5Ro+a003za1fd3lM9SqTZLgozIZAxDvIhJmhBAqIoaNDwy5H1A4uy/Sh31i1m5wrxCIK0nqNLV5r94naDu6rG4hUy8Rl43RXmjrZOPCfEsZhuLXLAcARzI3imjCg7gA1J87q2LEzm5PTEpLv1e0zPw2Vq9bQVcc0rN42NH9Tdc6/bFKVyujDNfiT/fevd/PKXwhpPRqSXDPweCKY/bk+wpOwyQn8gh/VOPBao/VpD/cO9uU8P5IkrczIho3drbVEMVyLv0l+SKui31pLUmM/SG2o3Bg72R6kt10aTepwvT9XUcjIgnM=';
+    // identityId = 'ap-southeast-1:e64c4a02-991c-4ef4-9780-2b46e6d97e83';
+
     if (!await attachPolicy(
         accessKey: accessKey,
         secretKey: secretKey,

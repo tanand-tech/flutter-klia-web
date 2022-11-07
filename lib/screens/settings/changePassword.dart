@@ -86,7 +86,7 @@ class _ChangePasswordState extends State<ChangePassword> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0.0),
               child: TextFormField(
                 keyboardType: TextInputType.visiblePassword,
                 decoration: InputDecoration(
@@ -121,7 +121,7 @@ class _ChangePasswordState extends State<ChangePassword> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0.0),
               child: TextFormField(
                 keyboardType: TextInputType.visiblePassword,
                 decoration: InputDecoration(

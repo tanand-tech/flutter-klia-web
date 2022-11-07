@@ -1,15 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:web_dashboard/instance/mqtt/mqttManager.dart';
 import 'package:web_dashboard/screens/settings/changePassword.dart';
 import 'package:web_dashboard/screens/login/loginScreen.dart';
 
 // Initialized Shared Preferences
 final Future<SharedPreferences> prefs = SharedPreferences.getInstance();
-
-// Alerts MQTT Topic Name
-const String alertsCountTopicName = 'klia-1/alerts/count';
 
 class Settings extends StatefulWidget {
   const Settings({super.key});
@@ -87,11 +83,9 @@ class _SettingsState extends State<Settings> {
             GestureDetector(
               onTap: () {
                 /**
-                 * Unsubscribe Alert Notification Mqtt Topic
                  * Remove the token stored
                  * Prompt the user back to the LoginScreen()
                  */
-                mqttManager.unsubscribeTopic(alertsCountTopicName);
                 removeRefreshToken();
                 Navigator.push(
                   context,

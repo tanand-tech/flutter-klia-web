@@ -1,36 +1,24 @@
 import 'dart:convert';
 
-import 'package:auto_size_text/auto_size_text.dart';
 import "package:collection/collection.dart";
 import "package:flutter/material.dart";
+import 'package:auto_size_text/auto_size_text.dart';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
-import 'package:mqtt_client/mqtt_client.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
+
 import 'package:web_dashboard/instance/forceRefresh/refreshTokenDueLongPeriod.dart';
-import 'package:web_dashboard/instance/mqtt/mqttManager.dart';
 import 'package:web_dashboard/model/cleaner/cleaners.dart';
 import 'package:web_dashboard/model/cleaner/cleanersChart.dart';
 import 'package:web_dashboard/model/cleaner/employee/employee.dart';
-import 'package:web_dashboard/notifier/notifierManager.dart';
 import 'package:web_dashboard/screens/cleaner/cleanerDetails.dart';
-
 import 'package:web_dashboard/util/util.dart';
 
 import '../../service/location-api.dart' as api;
 
 // Initialize the SharedPreferences
 final Future<SharedPreferences> prefs = SharedPreferences.getInstance();
-
-// Overall Cleaner MQTT Topic Name
-const String overallAllCleanerTopicName = 'klia-1/status/count';
-// Contractor Cleaner MQTT Topic Name
-const String contractorCleanerTopicName = 'klia-1/status/count/contractors';
-
-// Counter on MQTT
-// Avoid listen multiple times
-int counterMqtt = 1;
 
 // For API used
 // Page limit
@@ -54,9 +42,6 @@ Map<String, List<Employees>> groupEmployeeList = {};
 // Avoid multiple call on forceRefresh
 int counterRunRefresh = 0;
 
-//
-int counterBlock = 1;
-
 class CleanerScrren extends StatefulWidget {
   const CleanerScrren({super.key});
 
@@ -69,21 +54,8 @@ class _CleanerScrrenState extends State<CleanerScrren> {
 
   @override
   void initState() {
-    /** Initialize a listener to Provider */
-    /** Only for Cleaner Screen */
-    /** Only run once */
-    if (counterMqtt == 1) {
-      context.read<TextNotifierCleaner>().getPayload();
-      groupEmployeeListBySite();
-    }
+    groupEmployeeListBySite();
     super.initState();
-  }
-
-  @override
-  void dispose() {
-    mqttManager.unsubscribeTopic(overallAllCleanerTopicName);
-    mqttManager.unsubscribeTopic(contractorCleanerTopicName);
-    super.dispose();
   }
 
   // API Functions
@@ -399,6 +371,11 @@ class _CleanerScrrenState extends State<CleanerScrren> {
                   .contains(searchContractor.toLowerCase())) {
             tempEmployeeList = groupEmployeeList[companyName]!;
             break;
+          } else {
+            // Show error message on snack bar
+            ScaffoldMessenger.of(context)
+                .showSnackBar(showSnackBar("Company not found."));
+            break;
           }
         }
 
@@ -414,6 +391,13 @@ class _CleanerScrrenState extends State<CleanerScrren> {
                     element.identity == searchCleaner ||
                     element.identity!.contains(searchCleaner);
               }).toList();
+              if (result.length == 0) {
+                setState(() {
+                  Navigator.pop(context);
+                });
+                ScaffoldMessenger.of(context)
+                    .showSnackBar(showSnackBar("No data found."));
+              }
               break;
             }
           case 'Name':
@@ -427,11 +411,21 @@ class _CleanerScrrenState extends State<CleanerScrren> {
                         .toLowerCase()
                         .contains(searchCleaner.toLowerCase());
               }).toList();
+              if (result.length == 0) {
+                setState(() {
+                  Navigator.pop(context);
+                });
+                ScaffoldMessenger.of(context)
+                    .showSnackBar(showSnackBar("No data found."));
+              }
               break;
             }
           default:
         }
-        showAlertDialogForSearchingInCleaner(context, result);
+
+        if (result.length != 0) {
+          showAlertDialogForSearchingInCleaner(context, result);
+        }
       },
     );
 
@@ -564,53 +558,41 @@ class _CleanerScrrenState extends State<CleanerScrren> {
   // Widget
   // First Row
   Widget renderSingleBlock(CleanerData data) {
-    return Consumer<TextNotifierCleaner>(
-      builder: (context, notifier, child) {
-        /**
-         * To assign a start value into consumer for the first time only
-         */
-        if (counterBlock == 1) {
-          notifier.overallPayload = data.toString();
-          counterBlock++;
-        }
-        Map<String, int> finalData = formatStatusData(
-            CleanerData.fromJson(jsonDecode(notifier.overallPayload)));
+    Map<String, int> finalData = formatStatusData(data);
 
-        Map<String, int> newData = {};
-        for (var key in finalData.keys) {
-          if (key == 'Away') {
-          } else {
-            newData[key] = finalData[key]!;
-          }
-        }
+    Map<String, int> newData = {};
+    for (var key in finalData.keys) {
+      if (key == 'Away') {
+      } else {
+        newData[key] = finalData[key]!;
+      }
+    }
 
-        return Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Container(
-            decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: const BorderRadiusDirectional.all(
-                  Radius.circular(3.0),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.5),
-                    spreadRadius: 0.4,
-                  ),
-                ]),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                for (var singleData in newData.keys)
-                  Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: renderBlock(singleData, newData[singleData]!),
-                  ),
-              ],
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Container(
+        decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: const BorderRadiusDirectional.all(
+              Radius.circular(3.0),
             ),
-          ),
-        );
-      },
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.5),
+                spreadRadius: 0.4,
+              ),
+            ]),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            for (var singleData in newData.keys)
+              Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: renderBlock(singleData, newData[singleData]!),
+              ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -647,122 +629,101 @@ class _CleanerScrrenState extends State<CleanerScrren> {
   // Widget
   // Build the chart based on the chart type
   Widget chart(List<CleanersChartData> cleanersChart, String chartType) {
-    int counterChart = 1;
-    return Consumer<TextNotifierCleaner>(
-      builder: (context, notifier, child) {
-        /**
-         * To assign a start value into consumer for the first time only
-         */
-        if (counterChart == 1) {
-          if (cleanersChart.isNotEmpty) {
-            notifier.contractorPayload = cleanersChart.toString();
-            counterChart++;
-          } else {
-            notifier.contractorPayload =
-                '{ "contractor": 0, "active": 0, "idle": 0, "away": 0, "total": 0 }';
-            counterChart++;
+    Map<String, double> formattedData =
+        formatContractorsData(cleanersChart, chartType);
+
+    double RGData = 0, TMGData = 0, AMSData = 0, AdeccoData = 0, total = 0;
+    for (var key in formattedData.keys) {
+      switch (key) {
+        case 'RGData':
+          {
+            RGData = formattedData[key]!;
+            break;
           }
-        }
-        String json =
-            '{ "status": "OK", "message": "Successful", "data": ${notifier.contractorPayload} }';
-        List<CleanersChartData> list =
-            CleanersChart.fromJson(jsonDecode(json)).data!;
-        Map<String, double> formattedData =
-            formatContractorsData(list, chartType);
-        double RGData = 0, TMGData = 0, AMSData = 0, AdeccoData = 0, total = 0;
-        for (var key in formattedData.keys) {
-          switch (key) {
-            case 'RGData':
-              {
-                RGData = formattedData[key]!;
-                break;
-              }
-            case 'TMGData':
-              {
-                TMGData = formattedData[key]!;
-                break;
-              }
-            case 'AMSData':
-              {
-                AMSData = formattedData[key]!;
-                break;
-              }
-            case 'AdeccoData':
-              {
-                AdeccoData = formattedData[key]!;
-                break;
-              }
-            case 'total':
-              {
-                total = formattedData[key]!;
-                break;
-              }
+        case 'TMGData':
+          {
+            TMGData = formattedData[key]!;
+            break;
           }
-        }
-        final List<ChartData> chartDataActiveCleaners = [
-          ChartData('RG', RGData,
-              '${double.parse(((RGData / total) * 100).toStringAsFixed(2))}%'),
-          ChartData('TMR', TMGData,
-              '${double.parse(((TMGData / total) * 100).toStringAsFixed(2))}%'),
-          ChartData('AMS', AMSData,
-              "${double.parse(((AMSData / total) * 100).toStringAsFixed(2))}%"),
-          ChartData('Adecco', AdeccoData,
-              '${double.parse(((AdeccoData / total) * 100).toStringAsFixed(2))}%')
-        ];
-        // Check empty data
-        if (RGData == 0 && TMGData == 0 && AMSData == 0 && AdeccoData == 0) {
-          return SfCircularChart(
-            title: ChartTitle(
-                text: 'Idle Cleaners',
-                textStyle: const TextStyle(fontWeight: FontWeight.bold),
-                alignment: ChartAlignment.near),
-            legend: Legend(isVisible: false),
-            series: <CircularSeries>[
-              // Render pie chart
-              PieSeries<ChartData, String>(
-                dataSource: chartDataActiveCleaners,
-                xValueMapper: (ChartData data, _) => data.x,
-                yValueMapper: (ChartData data, _) => data.y,
-                dataLabelMapper: (ChartData data, _) => data.text,
-              ),
-            ],
-            annotations: <CircularChartAnnotation>[
-              CircularChartAnnotation(
-                  widget: Text(
-                "No cleaner's is detected.",
-                style: TextStyle(color: Colors.red[800], fontSize: 23),
-              ))
-            ],
-          );
-        } else {
-          return SfCircularChart(
-            title: ChartTitle(
-                text: 'Active Cleaners',
-                textStyle: const TextStyle(fontWeight: FontWeight.bold),
-                alignment: ChartAlignment.near),
-            legend: Legend(
+        case 'AMSData':
+          {
+            AMSData = formattedData[key]!;
+            break;
+          }
+        case 'AdeccoData':
+          {
+            AdeccoData = formattedData[key]!;
+            break;
+          }
+        case 'total':
+          {
+            total = formattedData[key]!;
+            break;
+          }
+      }
+    }
+    final List<ChartData> chartDataActiveCleaners = [
+      ChartData('RG', RGData,
+          '${double.parse(((RGData / total) * 100).toStringAsFixed(2))}%'),
+      ChartData('TMR', TMGData,
+          '${double.parse(((TMGData / total) * 100).toStringAsFixed(2))}%'),
+      ChartData('AMS', AMSData,
+          "${double.parse(((AMSData / total) * 100).toStringAsFixed(2))}%"),
+      ChartData('Adecco', AdeccoData,
+          '${double.parse(((AdeccoData / total) * 100).toStringAsFixed(2))}%')
+    ];
+    // Check empty data
+    if (RGData == 0 && TMGData == 0 && AMSData == 0 && AdeccoData == 0) {
+      return SfCircularChart(
+        title: ChartTitle(
+            text: 'Idle Cleaners',
+            textStyle: const TextStyle(fontWeight: FontWeight.bold),
+            alignment: ChartAlignment.near),
+        legend: Legend(isVisible: false),
+        series: <CircularSeries>[
+          // Render pie chart
+          PieSeries<ChartData, String>(
+            dataSource: chartDataActiveCleaners,
+            xValueMapper: (ChartData data, _) => data.x,
+            yValueMapper: (ChartData data, _) => data.y,
+            dataLabelMapper: (ChartData data, _) => data.text,
+          ),
+        ],
+        annotations: <CircularChartAnnotation>[
+          CircularChartAnnotation(
+              widget: Text(
+            "No cleaner's is detected.",
+            style: TextStyle(color: Colors.red[800], fontSize: 23),
+          ))
+        ],
+      );
+    } else {
+      return SfCircularChart(
+        title: ChartTitle(
+            text: 'Active Cleaners',
+            textStyle: const TextStyle(fontWeight: FontWeight.bold),
+            alignment: ChartAlignment.near),
+        legend: Legend(
+          isVisible: true,
+          position: LegendPosition.bottom,
+        ),
+        series: <CircularSeries>[
+          // Render pie chart
+          PieSeries<ChartData, String>(
+            dataSource: chartDataActiveCleaners,
+            xValueMapper: (ChartData data, _) => data.x,
+            yValueMapper: (ChartData data, _) => data.y,
+            dataLabelMapper: (ChartData data, _) => data.text,
+            dataLabelSettings: const DataLabelSettings(
               isVisible: true,
-              position: LegendPosition.bottom,
+              showZeroValue: false,
+              labelPosition: ChartDataLabelPosition.outside,
+              textStyle: TextStyle(color: Colors.black),
             ),
-            series: <CircularSeries>[
-              // Render pie chart
-              PieSeries<ChartData, String>(
-                dataSource: chartDataActiveCleaners,
-                xValueMapper: (ChartData data, _) => data.x,
-                yValueMapper: (ChartData data, _) => data.y,
-                dataLabelMapper: (ChartData data, _) => data.text,
-                dataLabelSettings: const DataLabelSettings(
-                  isVisible: true,
-                  showZeroValue: false,
-                  labelPosition: ChartDataLabelPosition.outside,
-                  textStyle: TextStyle(color: Colors.black),
-                ),
-              ),
-            ],
-          );
-        }
-      },
-    );
+          ),
+        ],
+      );
+    }
   }
 
   // Widget
@@ -847,18 +808,6 @@ class _CleanerScrrenState extends State<CleanerScrren> {
 
   @override
   Widget build(BuildContext context) {
-    /**
-     * Subscribe to the cleaner Mqtt topic
-     */
-    if (clientNew.getSubscriptionsStatus(overallAllCleanerTopicName) ==
-        MqttSubscriptionStatus.doesNotExist) {
-      mqttManager.subscribeTopic(overallAllCleanerTopicName);
-    }
-    if (clientNew.getSubscriptionsStatus(contractorCleanerTopicName) ==
-        MqttSubscriptionStatus.doesNotExist) {
-      mqttManager.subscribeTopic(contractorCleanerTopicName);
-    }
-
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -960,32 +909,17 @@ class _CleanerScrrenState extends State<CleanerScrren> {
                               Cleaners cleaners = snapshot.data;
                               CleanerData cleanerData = cleaners.data!;
 
-                              Map<String, int> finalData = formatStatusData(
-                                  CleanerData.fromJson(
-                                      jsonDecode(cleanerData.toString())));
+                              Map<String, int> finalData =
+                                  formatStatusData(cleanerData);
 
                               for (var key in finalData.keys) {
                                 if (key == 'Away') {
-                                  return Consumer<TextNotifierCleaner>(
-                                    builder: (context, notifier, child) {
-                                      Map<String, int> finalData =
-                                          formatStatusData(CleanerData.fromJson(
-                                              jsonDecode(
-                                                  notifier.overallPayload)));
-
-                                      for (var key in finalData.keys) {
-                                        if (key == 'Away') {
-                                          return Text(
-                                            finalData[key]!.toString(),
-                                            style: const TextStyle(
-                                              fontSize: 14,
-                                              color: Colors.black,
-                                            ),
-                                          );
-                                        }
-                                      }
-                                      return loadingText();
-                                    },
+                                  return Text(
+                                    finalData[key]!.toString(),
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.black,
+                                    ),
                                   );
                                 }
                               }

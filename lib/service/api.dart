@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:http/http.dart' as http;
-import 'package:http/http.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:web_dashboard/config.dart' as config;
 
@@ -48,7 +47,7 @@ class HttpService {
     var headerNew = await getHeaderGET();
     String url = config.baseUrl + api;
     print(url);
-    Response res = await http.get(
+    http.Response res = await http.get(
       Uri.parse(url),
       headers: headerNew,
     );

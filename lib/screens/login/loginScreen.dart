@@ -2,12 +2,14 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:web_dashboard/homeScreen.dart';
 import 'package:web_dashboard/instance/forceRefresh/refreshTokenDueLongPeriod.dart';
-import 'package:web_dashboard/instance/mqtt/mqttManager.dart';
 import 'package:web_dashboard/model/login/login.dart';
 import 'package:web_dashboard/model/universalMessage.dart';
-import 'package:web_dashboard/homeScreen.dart';
+import 'package:web_dashboard/notifier/notifierManager.dart';
 import 'package:web_dashboard/service/login-api.dart';
 import 'package:web_dashboard/util/util.dart';
 
@@ -180,13 +182,6 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  connectToAWS() async {
-    await mqttManager.initAwsInstance();
-    await mqttManager.initIoTClient();
-    await mqttManager.connectMqtt();
-    debugPrint('Mqtt Manager is ready to go...');
-  }
-
   // API Functions
   // Get the data body for login function
   Future getToken(String email, String password) async {
@@ -211,8 +206,6 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   firstTimeLogin(BuildContext context) async {
-    ScaffoldMessenger.of(context).showSnackBar(showSnackBar('Logging in...'));
-    await connectToAWS();
     final SharedPreferences preferences = await prefs;
     getToken(_emailTextController.text, _passwordTextController.text).then(
       (value) async {
@@ -255,8 +248,8 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   secondTimeLoginOnwards() async {
+    ScaffoldMessenger.of(context).showSnackBar(showSnackBar('Logging in...'));
     final SharedPreferences preferences = await prefs;
-    await connectToAWS();
     if (context.mounted) {
       await refreshTokenDueLongPeriod.forceRefresh(context);
     }

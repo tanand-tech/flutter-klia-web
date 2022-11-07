@@ -3,13 +3,9 @@ import 'dart:convert';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:mqtt_client/mqtt_client.dart';
-import 'package:provider/provider.dart';
 import 'package:web_dashboard/instance/forceRefresh/refreshTokenDueLongPeriod.dart';
-import 'package:web_dashboard/instance/mqtt/mqttManager.dart';
 import 'package:web_dashboard/model/alert/alert.dart';
 import 'package:web_dashboard/model/universalMessage.dart';
-import 'package:web_dashboard/notifier/notifierManager.dart';
 import 'package:web_dashboard/service/alertLog-api.dart' as api;
 import 'package:web_dashboard/util/util.dart';
 
@@ -18,9 +14,6 @@ enum AlertType { unaknowledge, aknowledge, all }
 
 // Set the default alert type as unackownledge
 String alertTypeInString = 'Unack';
-
-// Alerts MQTT Topic Name
-const String alertsCountTopicName = 'klia-1/alerts/count';
 
 // To store the alert
 List<Alerts> fullAlertList = [];
@@ -31,10 +24,6 @@ int currentAlert = 0;
 
 // Avoid multiple call on forceRefresh
 int counterRunRefresh = 0;
-
-// Counter on MQTT
-// Avoid listen multiple times
-int counterMqtt = 1;
 
 class AlertLog extends StatefulWidget {
   const AlertLog({super.key});
@@ -61,13 +50,6 @@ class _AlertLogState extends State<AlertLog> {
 
   @override
   void initState() {
-    /**
-     * Only listen to the entire notifier once
-     */
-    if (counterMqtt == 1) {
-      context.read<TextNotifierAlertLogs>().getPayload();
-      counterMqtt++;
-    }
     super.initState();
     /**
      * Declare the controller
@@ -90,30 +72,6 @@ class _AlertLogState extends State<AlertLog> {
         });
       }
     }
-  }
-
-  // Visible the refresh button
-  void showButton() {
-    Future.delayed(
-      Duration.zero,
-      () {
-        setState(() {
-          isVisible = true;
-        });
-      },
-    );
-  }
-
-  // Invisible the refresh button
-  void disableButton() {
-    Future.delayed(
-      Duration.zero,
-      () {
-        setState(() {
-          isVisible = false;
-        });
-      },
-    );
   }
 
   // Set the card colors
@@ -147,18 +105,7 @@ class _AlertLogState extends State<AlertLog> {
       future: getDataFromAPI(alertTypeInString),
       builder: ((context, AsyncSnapshot<dynamic> snapshot) {
         if (snapshot.hasData) {
-          return Consumer<TextNotifierAlertLogs>(
-            builder: (context, notifier, child) {
-              if (notifier.getNewMessage) {
-                /**
-                 * Turn the refresh button to visible
-                 */
-                showButton();
-                notifier.newMessage = false;
-              }
-              return alertList(snapshot.data);
-            },
-          );
+          return alertList(snapshot.data);
         }
         return loadingCard();
       }),
@@ -326,56 +273,6 @@ class _AlertLogState extends State<AlertLog> {
         cancelButton,
         continueButton,
       ],
-    );
-  }
-
-  // Widget
-  // Refresh Button
-  Widget refreshButton() {
-    return Visibility(
-      visible: isVisible,
-      child: Padding(
-        padding: const EdgeInsets.only(top: 10.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SizedBox(
-              width: 250.0,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  textStyle: const TextStyle(fontSize: 20),
-                  minimumSize: const Size.fromHeight(50),
-                  backgroundColor: Colors.grey[400],
-                ),
-                onPressed: () {
-                  /**
-                   * Refresh the Alert List
-                   * Empty the Alert List
-                   */
-                  refreshAlertList();
-                  // isVisible = !isVisible;
-                  disableButton();
-                },
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: const [
-                    Text(
-                      "New Alert Received",
-                      style: TextStyle(
-                        color: Colors.black,
-                      ),
-                    ),
-                    Icon(
-                      Icons.refresh,
-                      color: Colors.black,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 
@@ -668,14 +565,6 @@ class _AlertLogState extends State<AlertLog> {
 
   @override
   Widget build(BuildContext context) {
-    /**
-     * Subscribe to the Alert Notification Mqtt topic
-     */
-    if (clientNew.getSubscriptionsStatus(alertsCountTopicName) ==
-        MqttSubscriptionStatus.doesNotExist) {
-      mqttManager.subscribeTopic(alertsCountTopicName);
-    }
-
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -744,16 +633,11 @@ class _AlertLogState extends State<AlertLog> {
         backgroundColor: Colors.white,
         automaticallyImplyLeading: false,
       ),
-      body: Stack(
-        children: [
-          ListView(
-            controller: controller,
-            padding: const EdgeInsets.all(8.0),
-            children: <Widget>[
-              getUnackAlertsType(),
-            ],
-          ),
-          refreshButton(),
+      body: ListView(
+        controller: controller,
+        padding: const EdgeInsets.all(8.0),
+        children: <Widget>[
+          getUnackAlertsType(),
         ],
       ),
     );

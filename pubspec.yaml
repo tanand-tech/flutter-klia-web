@@ -34,11 +34,6 @@ dependencies:
 
   flutter_admin_scaffold: ^1.1.2
 
-  # firebase_auth: ^3.10.0
-  # cloud_firestore: ^3.4.9
-  # firebase_storage: ^10.3.9
-  # firebase_core: ^1.23.0
-
   # Icons
   cupertino_icons: ^1.0.2
   font_awesome_flutter: ^10.2.1
@@ -46,11 +41,8 @@ dependencies:
   # Chart Widget
   syncfusion_flutter_charts: ^20.2.50
   
-  # AWS-IOT MQTT
-  mqtt_client: ^9.7.2
-  sigv4: '^5.0.0'
+  # http
   http: ^0.13.5
-  amazon_cognito_identity_dart_2: ^3.0.0
   
   # Drop Down Widget
   expandable: ^5.0.1

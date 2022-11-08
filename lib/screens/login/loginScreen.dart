@@ -1,15 +1,15 @@
 import 'dart:convert';
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:web_dashboard/homeScreen.dart';
 import 'package:web_dashboard/instance/forceRefresh/refreshTokenDueLongPeriod.dart';
 import 'package:web_dashboard/model/login/login.dart';
 import 'package:web_dashboard/model/universalMessage.dart';
-import 'package:web_dashboard/notifier/notifierManager.dart';
+import 'package:web_dashboard/screens/login/passwordReset.dart';
 import 'package:web_dashboard/service/login-api.dart';
 import 'package:web_dashboard/util/util.dart';
 
@@ -22,6 +22,9 @@ int counterClicked = 1;
 
 // Login state
 bool login = false;
+
+// Password Visibility
+bool passVisi = true;
 
 class LoginScreen extends StatefulWidget {
   static const String id = "login-screen";
@@ -37,12 +40,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
   // Set default key
   // Should remove before deploy / build
-  final _emailTextController =
-      TextEditingController(text: "user@tanand.com.my");
-  final _passwordTextController = TextEditingController(text: "User@1234");
+  final _emailTextController = TextEditingController(text: "");
+  final _passwordTextController = TextEditingController(text: "");
 
   @override
   void initState() {
+    passVisi = true;
     counterClicked = 1;
     debugPrint("Checking refresh token from preferences...");
     prefs.then((value) {
@@ -108,6 +111,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return "Please enter your email";
+                  } else {
+                    if (!isEmailValid(value)) {
+                      return "Please enter a valid email";
+                    }
                   }
                   return null;
                 },
@@ -121,8 +128,22 @@ class _LoginScreenState extends State<LoginScreen> {
               padding: const EdgeInsets.all(30.0),
               child: TextFormField(
                 keyboardType: TextInputType.visiblePassword,
+                obscureText: passVisi,
                 decoration: InputDecoration(
                   prefixIcon: const Icon(Icons.password_rounded),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      // Based on passwordVisible state choose the icon
+                      passVisi ? Icons.visibility_off : Icons.visibility,
+                      color: Theme.of(context).primaryColorDark,
+                    ),
+                    onPressed: () {
+                      // Update the state i.e. toogle the state of passwordVisible variable
+                      setState(() {
+                        passVisi = !passVisi;
+                      });
+                    },
+                  ),
                   labelText: "Password",
                   contentPadding: EdgeInsets.zero,
                   focusedBorder: OutlineInputBorder(
@@ -147,7 +168,12 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             // Login button
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 60),
+              padding: const EdgeInsets.only(
+                top: 60,
+                left: 60,
+                right: 60,
+                bottom: 30,
+              ),
               child: MaterialButton(
                 onPressed: () async {
                   if (_formKey.currentState != null) {
@@ -176,6 +202,21 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
             ),
+            // // Forget Password
+            // Center(
+            //   child: RichText(
+            //     text: TextSpan(
+            //       text: 'Forget Password',
+            //       recognizer: TapGestureRecognizer()
+            //         ..onTap = () => Navigator.push(
+            //               context,
+            //               MaterialPageRoute(
+            //                 builder: (context) => const PasswordReset(),
+            //               ),
+            //             ),
+            //     ),
+            //   ),
+            // ),
           ],
         ),
       ),
@@ -217,7 +258,7 @@ class _LoginScreenState extends State<LoginScreen> {
           mapToken['accessToken'] = value.data!.tokens!.accessToken!;
           mapToken['refreshToken'] = value.data!.tokens!.refreshToken!;
           await refreshTokenDueLongPeriod.storeToken(mapToken);
-          debugPrint('DOWNLOADING STATIC DATA RIGHT NOW..');
+          debugPrint('DOWNLOADING STATIC DATA NOW..');
           await refreshTokenDueLongPeriod.downloadStaticDataAPI();
           // Check static data in shared preferences
           if (preferences.containsKey('staticData') && context.mounted) {

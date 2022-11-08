@@ -1,9 +1,9 @@
 import 'dart:convert';
 
 import "package:collection/collection.dart";
+import 'package:flutter/cupertino.dart';
 import "package:flutter/material.dart";
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
@@ -29,6 +29,7 @@ enum SearchCleanerType { ICorPassport, Name }
 
 // Employee Site
 List<Employees> employeeList = [];
+List<Employees> fullEmployeeList = [];
 int totalEmployee = 0;
 
 // Search Function
@@ -232,7 +233,9 @@ class _CleanerScrrenState extends State<CleanerScrren> {
     Widget cancelButton = TextButton(
       child: const Text("Cancel"),
       onPressed: () {
-        Navigator.of(context).pop();
+        setState(() {
+          Navigator.pop(context);
+        });
       },
     );
 
@@ -328,10 +331,19 @@ class _CleanerScrrenState extends State<CleanerScrren> {
   // Widget
   // Search Box in Alert Dialog
   Widget dialogSearchBox(BuildContext context) {
+    List<Employees> result = [];
     /**
      * Set up the buttons for search box
      * Cancel Button && Ok Button
      */
+    Widget showAll = TextButton(
+      onPressed: () {
+        showAlertDialogForSearchingInCleaner(context, employeeList);
+      },
+      style: TextButton.styleFrom(alignment: Alignment.centerLeft),
+      child: const Text("Show All"),
+    );
+
     Widget cancelButton = TextButton(
       child: const Text("Cancel"),
       onPressed: () {
@@ -340,6 +352,7 @@ class _CleanerScrrenState extends State<CleanerScrren> {
         });
       },
     );
+
     Widget continueButton = TextButton(
       child: const Text("Ok"),
       onPressed: () {
@@ -363,68 +376,73 @@ class _CleanerScrrenState extends State<CleanerScrren> {
             break;
         }
 
-        List<Employees> tempEmployeeList = [];
-        for (var companyName in groupEmployeeList.keys) {
-          if (companyName.toLowerCase() == searchContractor.toLowerCase() ||
-              companyName
-                  .toLowerCase()
-                  .contains(searchContractor.toLowerCase())) {
-            tempEmployeeList = groupEmployeeList[companyName]!;
-            break;
-          } else {
-            // Show error message on snack bar
-            ScaffoldMessenger.of(context)
-                .showSnackBar(showSnackBar("Company not found."));
-            break;
+        if (searchContractor.isEmpty && searchCleaner.isEmpty) {
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context)
+              .showSnackBar(showSnackBar("Please enter a text."));
+        } else {
+          List<Employees> tempEmployeeList = [];
+          for (var companyName in groupEmployeeList.keys) {
+            if (companyName.toLowerCase() == searchContractor.toLowerCase() ||
+                companyName
+                    .toLowerCase()
+                    .contains(searchContractor.toLowerCase())) {
+              tempEmployeeList = groupEmployeeList[companyName]!;
+              break;
+            } else {
+              // Show error message on snack bar
+              ScaffoldMessenger.of(context)
+                  .showSnackBar(showSnackBar("Company not found."));
+              break;
+            }
           }
-        }
 
-        var result;
-        switch (searchCleanerTypeInString) {
-          case 'IC or Passport':
-            {
-              result = tempEmployeeList.where((element) {
-                return element.identity!
-                            .toString()
-                            .replaceAll(RegExp('[^0-9]'), '') ==
-                        searchCleaner ||
-                    element.identity == searchCleaner ||
-                    element.identity!.contains(searchCleaner);
-              }).toList();
-              if (result.length == 0) {
-                setState(() {
-                  Navigator.pop(context);
-                });
-                ScaffoldMessenger.of(context)
-                    .showSnackBar(showSnackBar("No data found."));
+          switch (searchCleanerTypeInString) {
+            case 'IC or Passport':
+              {
+                result = tempEmployeeList.where((element) {
+                  return element.identity!
+                              .toString()
+                              .replaceAll(RegExp('[^0-9]'), '') ==
+                          searchCleaner ||
+                      element.identity == searchCleaner ||
+                      element.identity!.contains(searchCleaner);
+                }).toList();
+                if (result.isEmpty) {
+                  setState(() {
+                    Navigator.pop(context);
+                  });
+                  ScaffoldMessenger.of(context)
+                      .showSnackBar(showSnackBar("No data found."));
+                }
+                break;
               }
-              break;
-            }
-          case 'Name':
-            {
-              result = tempEmployeeList.where((element) {
-                return element.name!.toLowerCase() ==
-                        searchCleaner.toLowerCase() ||
-                    element.name!.toLowerCase() ==
-                        searchCleaner.toLowerCase() ||
-                    element.name!
-                        .toLowerCase()
-                        .contains(searchCleaner.toLowerCase());
-              }).toList();
-              if (result.length == 0) {
-                setState(() {
-                  Navigator.pop(context);
-                });
-                ScaffoldMessenger.of(context)
-                    .showSnackBar(showSnackBar("No data found."));
+            case 'Name':
+              {
+                result = tempEmployeeList.where((element) {
+                  return element.name!.toLowerCase() ==
+                          searchCleaner.toLowerCase() ||
+                      element.name!.toLowerCase() ==
+                          searchCleaner.toLowerCase() ||
+                      element.name!
+                          .toLowerCase()
+                          .contains(searchCleaner.toLowerCase());
+                }).toList();
+                if (result.isEmpty) {
+                  setState(() {
+                    Navigator.pop(context);
+                  });
+                  ScaffoldMessenger.of(context)
+                      .showSnackBar(showSnackBar("No data found."));
+                }
+                break;
               }
-              break;
-            }
-          default:
-        }
+            default:
+          }
 
-        if (result.length != 0) {
-          showAlertDialogForSearchingInCleaner(context, result);
+          if (result.isNotEmpty) {
+            showAlertDialogForSearchingInCleaner(context, result);
+          }
         }
       },
     );
@@ -474,7 +492,12 @@ class _CleanerScrrenState extends State<CleanerScrren> {
                 color: Colors.white,
               ),
               Padding(
-                padding: const EdgeInsets.only(top: 10, right: 15, left: 15),
+                padding: const EdgeInsets.only(
+                  top: 10,
+                  right: 15,
+                  left: 15,
+                  bottom: 20,
+                ),
                 child: TextFormField(
                   onChanged: (value) {
                     setState(() {
@@ -532,25 +555,23 @@ class _CleanerScrrenState extends State<CleanerScrren> {
                   ),
                 ),
               ),
-              const SizedBox(height: 4),
-              const Padding(
-                padding:
-                    EdgeInsets.only(top: 10, bottom: 10, right: 15, left: 15),
-                child: Text(
-                  'All cleaners will be returned for empty search fields.',
-                  textAlign: TextAlign.left,
-                  style: TextStyle(
-                    fontSize: 13,
-                  ),
-                ),
-              ),
             ],
           ),
         );
       }),
       actions: [
-        cancelButton,
-        continueButton,
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            showAll,
+            Row(
+              children: [
+                cancelButton,
+                continueButton,
+              ],
+            ),
+          ],
+        )
       ],
     );
   }
@@ -692,7 +713,7 @@ class _CleanerScrrenState extends State<CleanerScrren> {
         annotations: <CircularChartAnnotation>[
           CircularChartAnnotation(
               widget: Text(
-            "No cleaner's is detected.",
+            "No cleaner detected.",
             style: TextStyle(color: Colors.red[800], fontSize: 23),
           ))
         ],

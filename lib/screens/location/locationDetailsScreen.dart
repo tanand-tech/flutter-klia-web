@@ -487,7 +487,7 @@ class _LocationDetailsScreenState extends State<LocationDetailsScreen> {
                 handleAvailableTime(),
                 /**
                  * Second Row
-                 * Daily Summary of Cleaner of Activities
+                 * Daily Summary of Cleaner Activities
                  */
                 SizedBox(
                   width: MediaQuery.of(context).size.width,
@@ -501,7 +501,7 @@ class _LocationDetailsScreenState extends State<LocationDetailsScreen> {
                         height: 60,
                         color: Colors.grey[300],
                         child: const Text(
-                          'Daily summary of cleaner of activities',
+                          'Daily summary of cleaner activities',
                           style: TextStyle(fontSize: 20),
                         ),
                       ),

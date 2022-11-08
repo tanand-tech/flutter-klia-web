@@ -25,24 +25,23 @@ Future<http.Response> changePassword(Map body) async {
   return res;
 }
 
-// Future<http.Response> requestPasswordReset(
-//     String email, String password, String newPassword) async {
-//   http.Response? res = await api.HttpService().getPost(
-//     '/user/auth/forgot/password/request/{email}'
-//     // email,
-//     // password,
-//     // newPassword,
-//   );
-//   return res;
-// }
+Future<http.Response> requestPasswordReset(
+  String email,
+  Map body,
+) async {
+  http.Response? res = await api.HttpService().getPost(
+    '/user/auth/forgot/password/request/$email',
+    body,
+  );
+  return res;
+}
 
-// Future<http.Response> getResetPassword(
-//     String email, String password, String newPassword) async {
-//   http.Response? res = await api.HttpService().getPost(
-//     '/user/auth/forgot/password/reset'
-//     // email,
-//     // password,
-//     // newPassword,
-//   );
-//   return res;
-// }
+Future<http.Response> getResetPassword(
+  Map body,
+) async {
+  http.Response? res = await api.HttpService().getPost(
+    '/user/auth/forgot/password/reset',
+    body,
+  );
+  return res;
+}

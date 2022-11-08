@@ -30,6 +30,7 @@ class MyApp extends StatelessWidget {
       title: 'KLIA',
       theme: ThemeData(
         primaryColor: Colors.blue[200],
+        fontFamily: 'Roboto',
       ),
       initialRoute: LoginScreen.id,
       routes: {

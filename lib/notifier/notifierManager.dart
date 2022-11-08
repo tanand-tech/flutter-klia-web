@@ -10,7 +10,6 @@ class UniversalNotifier extends ChangeNotifier {
   void getPayload() async {
     String temp = '';
     Download2 result = (await sharedPreference.getDataFromSharedPreferences())!;
-    debugPrint('got the data, updating the things');
     if (result.siteId == 'klia-1') {
       temp = result.siteId!;
       siteIdFromStaticData = temp;

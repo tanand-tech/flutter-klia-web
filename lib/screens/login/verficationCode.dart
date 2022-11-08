@@ -5,19 +5,20 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:web_dashboard/instance/forceRefresh/refreshTokenDueLongPeriod.dart';
 import 'package:web_dashboard/model/universalMessage.dart';
 import 'package:web_dashboard/service/login-api.dart';
+import 'package:web_dashboard/util/util.dart';
 
 final Future<SharedPreferences> prefs = SharedPreferences.getInstance();
 
 int counterRunRefresh = 0;
 
-class ChangePassword extends StatefulWidget {
-  const ChangePassword({super.key});
+class VerificationCode extends StatefulWidget {
+  const VerificationCode({super.key});
 
   @override
-  State<ChangePassword> createState() => _ChangePasswordState();
+  State<VerificationCode> createState() => _VerificationCodeState();
 }
 
-class _ChangePasswordState extends State<ChangePassword> {
+class _VerificationCodeState extends State<VerificationCode> {
   final _formKey = GlobalKey<FormState>();
 
   final _oldPasswordTextController = TextEditingController(text: "");
@@ -28,7 +29,6 @@ class _ChangePasswordState extends State<ChangePassword> {
 
   @override
   void initState() {
-    initSharedPreferences();
     super.initState();
   }
 
@@ -38,7 +38,7 @@ class _ChangePasswordState extends State<ChangePassword> {
       appBar: AppBar(
         centerTitle: true,
         title: const Text(
-          'Change Password',
+          'Verification Code',
           style: TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.bold,
@@ -61,9 +61,9 @@ class _ChangePasswordState extends State<ChangePassword> {
             Padding(
               padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0.0),
               child: TextFormField(
-                keyboardType: TextInputType.visiblePassword,
+                keyboardType: TextInputType.emailAddress,
                 decoration: InputDecoration(
-                  labelText: "Current Password",
+                  labelText: "Email",
                   contentPadding: EdgeInsets.zero,
                   focusedBorder: OutlineInputBorder(
                     borderSide: BorderSide(
@@ -76,7 +76,7 @@ class _ChangePasswordState extends State<ChangePassword> {
                 controller: _oldPasswordTextController,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return "Please enter the current password";
+                    return "Please enter your email address";
                   }
                   return null;
                 },
@@ -109,14 +109,6 @@ class _ChangePasswordState extends State<ChangePassword> {
                 },
                 onChanged: (value) {
                   value = _newPasswordTextController.text;
-                  if (checkNewNOldPassword(_oldPasswordTextController.text,
-                      _newPasswordTextController.text)) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Cannot use the same password.'),
-                      ),
-                    );
-                  }
                 },
               ),
             ),
@@ -125,7 +117,7 @@ class _ChangePasswordState extends State<ChangePassword> {
               child: TextFormField(
                 keyboardType: TextInputType.visiblePassword,
                 decoration: InputDecoration(
-                  labelText: "Confirm Password",
+                  labelText: "Verification Code",
                   contentPadding: EdgeInsets.zero,
                   focusedBorder: OutlineInputBorder(
                     borderSide: BorderSide(
@@ -138,7 +130,7 @@ class _ChangePasswordState extends State<ChangePassword> {
                 controller: _repeatNewPasswordTextController,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return "Please enter again the new password";
+                    return "Please enter a valid code";
                   }
                   return null;
                 },
@@ -148,52 +140,17 @@ class _ChangePasswordState extends State<ChangePassword> {
               ),
             ),
             ElevatedButton(
-              onPressed: () {
-                const snackBarSamePassword = SnackBar(
-                  content: Text('Cannot use the same password.'),
-                );
-                const snackBarPasswordNotMatch = SnackBar(
-                  content: Text('New password is not matched.'),
-                );
-                const snackBarPasswordChanged = SnackBar(
-                  content: Text('Password successfully changed.'),
-                );
-                bool successChangedPassword = false;
-                if (_formKey.currentState != null) {
-                  if (_formKey.currentState!.validate()) {
-                    String accessToken = preferences.getString('accessToken')!;
-
-                    if (checkNewNOldPassword(_oldPasswordTextController.text,
-                        _newPasswordTextController.text)) {
-                      ScaffoldMessenger.of(context)
-                          .showSnackBar(snackBarSamePassword);
-                    }
-                    if (checkNewNRepeatNewPassword(
-                            _newPasswordTextController.text,
-                            _repeatNewPasswordTextController.text) ==
-                        false) {
-                      ScaffoldMessenger.of(context)
-                          .showSnackBar(snackBarPasswordNotMatch);
-                    }
-                    changePasswordAPI(
-                            accessToken,
-                            _newPasswordTextController.text,
-                            _oldPasswordTextController.text)
-                        .then((value) {
-                      if (value == 'Successful') {
-                        successChangedPassword = true;
-                        if (successChangedPassword == true) {
-                          ScaffoldMessenger.of(context)
-                              .showSnackBar(snackBarPasswordChanged);
-                        }
-                      } else {
-                        ScaffoldMessenger.of(context)
-                            .showSnackBar(showSnackBar(value));
-                      }
-                      return successChangedPassword;
-                    });
+              onPressed: () async {
+                await getResetPasswordAPI().then((value) {
+                  if (value == 'Successful') {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        showSnackBar('New password has been set.'));
+                  } else {
+                    ScaffoldMessenger.of(context)
+                        .showSnackBar(showSnackBar(value));
                   }
-                }
+                  return true;
+                });
               },
               child: const Text(
                 'Save',
@@ -208,46 +165,18 @@ class _ChangePasswordState extends State<ChangePassword> {
     );
   }
 
-  SnackBar showSnackBar(String content) {
-    return SnackBar(content: Text(content));
-  }
-
-// Function
-  bool checkNewNOldPassword(String oldPassword, String newPassword) {
-    if (oldPassword.compareTo(newPassword) == 0) {
-      return true;
-    }
-    return false;
-  }
-
-  bool checkNewNRepeatNewPassword(
-      String newPassword, String repeatNewPassword) {
-    if (newPassword.compareTo(repeatNewPassword) == 0) {
-      return true;
-    }
-    return false;
-  }
-
-  initSharedPreferences() async {
-    preferences = await prefs;
-  }
-
   // API
-  Future<String> changePasswordAPI(
-      String accessToken, String newPassword, String oldPassword) async {
-    // String failToCallAPI = 'Unsuccessful';
-    Map<String, String> changePasswordBody = {
-      "accessToken": accessToken,
-      "newPassword": newPassword,
-      "oldPassword": oldPassword
-    };
-    var res = await changePassword(changePasswordBody);
+  Future<String> getResetPasswordAPI() async {
+    Map body = {};
+    var res = await changePassword(body);
+
     if (res.statusCode == 200 || res.statusCode == 400) {
       UniversalMessage messagesAPI =
           UniversalMessage.fromJson(jsonDecode(res.body));
       debugPrint("The response body will be :: ${messagesAPI.message!}");
       return messagesAPI.message!;
     }
+
     if (res.statusCode == 403) {
       counterRunRefresh++;
       if (counterRunRefresh == 1) {
@@ -271,37 +200,8 @@ class _ChangePasswordState extends State<ChangePassword> {
           print('There is no hasRefresh key in the map');
         }
       }
-      return 'Null';
+      return 'null';
     }
     return 'null';
   }
 }
-
-// class RequestChangePasswordMessage {
-//   int? timestamp;
-//   String? status;
-//   String? error;
-//   String? message;
-//   String? path;
-
-//   RequestChangePasswordMessage(
-//       {this.timestamp, this.status, this.error, this.message, this.path});
-
-//   RequestChangePasswordMessage.fromJson(Map<String, dynamic> json) {
-//     timestamp = json['timestamp'];
-//     status = json['status'];
-//     error = json['error'];
-//     message = json['message'];
-//     path = json['path'];
-//   }
-
-//   Map<String, dynamic> toJson() {
-//     final Map<String, dynamic> data = <String, dynamic>{};
-//     data['timestamp'] = timestamp;
-//     data['status'] = status;
-//     data['error'] = error;
-//     data['message'] = message;
-//     data['path'] = path;
-//     return data;
-//   }
-// }

@@ -7,6 +7,12 @@ SnackBar showSnackBar(String snackBar) {
   );
 }
 
+bool isEmailValid(String email) {
+  return RegExp(
+          r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$')
+      .hasMatch(email);
+}
+
 String capitalizeFirstWord(String s) => s[0].toUpperCase() + s.substring(1);
 
 String formatedTime(int timeInSecond) {

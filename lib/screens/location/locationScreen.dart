@@ -13,7 +13,7 @@ import 'package:web_dashboard/model/location/OverallLocation.dart';
 import 'package:web_dashboard/model/location/trailLogs.dart';
 import 'package:web_dashboard/model/staticData/download%20copy.dart';
 import 'package:web_dashboard/notifier/notifierManager.dart';
-import 'package:web_dashboard/screens/location/locationDetailsScreen2.dart';
+import 'package:web_dashboard/screens/location/locationDetailsScreen.dart';
 import 'package:web_dashboard/service/location-api.dart' as api;
 import 'package:web_dashboard/util/util.dart';
 
@@ -25,6 +25,9 @@ int counterRunRefresh = 0;
 
 // Avoid listen to Provider / Notifier twice
 int counterProvider = 1;
+
+// Avoid getting duplicate data from static data
+int counterSD = 1;
 
 // Set default key
 // Should remove before deploy / build
@@ -317,16 +320,29 @@ class _LocationScreenState extends State<LocationScreen> {
               const SizedBox(
                 height: 5,
               ),
-              Text(
-                capitalizeFirstWord(data[0].toString()),
-                overflow: TextOverflow.visible,
-                softWrap: false,
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: Colors.white,
+              if (data[0].toString() == "Unavailable") ...[
+                const Text(
+                  "N/A",
                   overflow: TextOverflow.visible,
+                  softWrap: false,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.white,
+                    overflow: TextOverflow.visible,
+                  ),
                 ),
-              ),
+              ] else ...[
+                Text(
+                  capitalizeFirstWord(data[0].toString()),
+                  overflow: TextOverflow.visible,
+                  softWrap: false,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Colors.white,
+                    overflow: TextOverflow.visible,
+                  ),
+                ),
+              ]
             ],
           ),
         ),
@@ -484,7 +500,9 @@ class _LocationScreenState extends State<LocationScreen> {
   // Widget
   // Display the Search Box
   Future<void> displaySearchBox(BuildContext context) async {
-    getDataFromStaticDataLS();
+    while (roomList.isEmpty) {
+      getDataFromStaticDataLS();
+    }
     /**
      * Set up the buttons for search box
      * Cancel Button && Ok Button
@@ -502,23 +520,33 @@ class _LocationScreenState extends State<LocationScreen> {
       onPressed: () {
         setState(() {
           searchLocation = valueText;
-          Navigator.pop(context);
         });
-        List<Rooms> roomTempList = [];
-        for (var element in roomList) {
-          if (element.name!
-              .toLowerCase()
-              .contains(searchLocation.toLowerCase())) {
-            roomTempList.add(element);
+        if (searchLocation.isEmpty && valueText.isEmpty) {
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context)
+              .showSnackBar(showSnackBar("Please enter a text."));
+        } else {
+          List<Rooms> roomTempList = [];
+          for (var element in roomList) {
+            if (element.name!
+                .toLowerCase()
+                .contains(searchLocation.toLowerCase())) {
+              roomTempList.add(element);
+            }
+          }
+          if (roomTempList.isNotEmpty) {
+            Navigator.pop(context);
+            print(roomTempList.length);
+            showAlertDialogForSearching(context, roomTempList);
+            searchLocation = '';
+            valueText = '';
+          } else {
+            print(roomList.length);
+            Navigator.pop(context);
+            ScaffoldMessenger.of(context)
+                .showSnackBar(showSnackBar("No data found."));
           }
         }
-        if (roomTempList.isNotEmpty) {
-          print("not getting here?");
-          showAlertDialogForSearching(context, roomTempList);
-        } else {
-          print('but here?');
-        }
-        print("User typed :: $searchLocation");
       },
     );
 
@@ -629,6 +657,7 @@ class _LocationScreenState extends State<LocationScreen> {
                   );
                 },
                 child: Card(
+                  elevation: 0,
                   child: Padding(
                     padding: const EdgeInsets.all(20.0),
                     child: Text(
@@ -715,11 +744,12 @@ class _LocationScreenState extends State<LocationScreen> {
                         );
                       },
                       child: Card(
+                        elevation: 0,
                         child: Padding(
                           padding: const EdgeInsets.all(20.0),
                           child: Text(
                             "${data[name]![position].name.toString()} (${data[name]![position].status.toString()})",
-                            style: const TextStyle(fontSize: 22.0),
+                            style: const TextStyle(fontSize: 18.0),
                           ),
                         ),
                       ),
